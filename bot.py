@@ -13,7 +13,7 @@ API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN") 
 
 # --- MongoDB Connection URL (ಪಾಸ್ವರ್ಡ್ ಸೇರಿಸಲಾಗಿದೆ) ---
-# ದಯವಿಟ್ಟು <> ಜಾಗದಲ್ಲಿ ನಿಮ್ಮ ನಿಜವಾದ ಪಾಸ್ವರ್ಡ್ ಹಾಕಿ.
+# ದಯವಿಟ್ಟು <ECFONSRI9YqMPIJZ> ಜಾಗದಲ್ಲಿ ನಿಮ್ಮ ನಿಜವಾದ ಪಾಸ್ವರ್ಡ್ ಹಾಕಿ.
 MONGO_URL = "mongodb+srv://badigern381_db_user:<ECFONSRI9YqMPIJZ>@cluster0.fdxreju.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 # --- MongoDB ಸಂಪರ್ಕ ಕೋಡ್ ---
