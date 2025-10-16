@@ -1,64 +1,86 @@
+import os
+import logging
 from pyrogram import Client, filters
 from pymongo import MongoClient
-import os
 
-# Heroku Config Vars ನಿಂದ ಅಗತ್ಯ ಮೌಲ್ಯಗಳನ್ನು ಪಡೆಯುವುದು
+# ಲಾಗಿಂಗ್ ಸೆಟ್ಟಿಂಗ್ಸ್
+logging.basicConfig(level=logging.INFO)
+
+# --- Environment Variables (Render ನಿಂದ ಪಡೆಯಲು) ---
+# API ID, API HASH, ಮತ್ತು BOT_TOKEN ಅನ್ನು Render ನ Environment Variables ನಲ್ಲಿ ನಮೂದಿಸಿರಬೇಕು.
 API_ID = os.getenv("API_ID") 
 API_HASH = os.getenv("API_HASH")
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-mongodb_url=("mongodb+srv://badigern381_db_user:<ECFONSRI9YqMPIJZ>@cluster0.fdxreju.mongodb.net/?retryWrites=true&w=majority")
+BOT_TOKEN = os.getenv("BOT_TOKEN") 
 
-# --- MongoDB ಸಂಪರ್ಕ ---
-try:
-    mongo_client = MongoClieesyourrequest?retryWrites=true&w=majority&appName=Cluster0")
+# --- MongoDB Connection URL (ಪಾಸ್ವರ್ಡ್ ಸೇರಿಸಲಾಗಿದೆ) ---
+# ದಯವಿಟ್ಟು <> ಜಾಗದಲ್ಲಿ ನಿಮ್ಮ ನಿಜವಾದ ಪಾಸ್ವರ್ಡ್ ಹಾಕಿ.
+MONGO_URL = "mongodb+srv://badigern381_db_user:<ECFONSRI9YqMPIJZ>@cluster0.fdxreju.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
-# --- MongoDB ಸಂಪರ್ಕ ---
+# --- MongoDB ಸಂಪರ್ಕ ಕೋಡ್ ---
 try:
+    if not MONGO_URL or "<YOUR_MONGO_PASSWORD_HERE>" in MONGO_URL:
+        # ಪಾಸ್ವರ್ಡ್ ಬದಲಾಯಿಸದಿದ್ದರೆ ಎಚ್ಚರಿಕೆ ನೀಡಿ
+        raise ValueError("MongoDB URL is incorrect or password is not replaced in the code.")
+        
     mongo_client = MongoClient(MONGO_URL)
-    # Database ಹೆಸರು: moviesyourrequest
-    db = mongo_client["moviesyourrequest"]
-    users = db["users"]
-    print("✅ MongoDB ಗೆ ಯಶಸ್ವಿಯಾಗಿ ಸಂಪರ್ಕಗೊಂಡಿದೆ.")
+    db = mongo_client["MoviesYourRequestBot"] 
+    users = db["users"] 
+    
+    print("✅ MongoDB ಗೆ ಯಶಸ್ವಿಯಾಗಿ ಸಂಪರ್ಕಗೊಂಡಿದೆ.") 
+
 except Exception as e:
-    print(f"❌ MongoDB ಸಂಪರ್ಕ ದೋಷ: {e}. ದಯವಿಟ್ಟು MONGO_URL ಪರಿಶೀಲಿಸಿ.")
+    print(f"❌ MongoDB ಸಂಪರ್ಕ ದೋಷ: {e}. ದಯವಿಟ್ಟು ಕೋಡ್‌ನಲ್ಲಿನ MONGO_URL ಪಾಸ್‌ವರ್ಡ್ ಸರಿಯಾಗಿದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ.")
+    # ಸಂಪರ್ಕ ವಿಫಲವಾದರೆ ಬೋಟ್ ಅನ್ನು ಸ್ಥಗಿತಗೊಳಿಸಿ
     exit()
 
-# --- Pyrogram ಬಾಟ್ ಸೆಟಪ್ ---
-bot = Client(
-    "MoviesYourRequestBot", # Session Name
-    api_id=API_ID,
-    api_hash=API_HASH,
-    bot_token=BOT_TOKEN
-)
+# --- Pyrogram ಬೋಟ್ ಕ್ಲೈಂಟ್ ---
+# API ID ಮತ್ತು API HASH ಇಲ್ಲದಿದ್ದರೆ ಬೋಟ್ ಪ್ರಾರಂಭವಾಗುವುದಿಲ್ಲ.
+if not API_ID or not API_HASH or not BOT_TOKEN:
+    print("❌ API/BOT ವಿವರಗಳು ಕಾಣೆಯಾಗಿವೆ. Render ನ Environment Variables ಪರಿಶೀಲಿಸಿ.")
+    exit()
 
-# /start ಕಮಾಂಡ್ ಹ್ಯಾಂಡ್ಲರ್
+try:
+    # API_ID ಅನ್ನು ಪೂರ್ಣಾಂಕವಾಗಿ (integer) ಪರಿವರ್ತಿಸುವುದು ಮುಖ್ಯ
+    bot = Client(
+        "MoviesYourRequestBot",  # ಸೆಷನ್ ಹೆಸರು
+        api_id=int(API_ID),      
+        api_hash=API_HASH, 
+        bot_token=BOT_TOKEN 
+    )
+except ValueError:
+    print("❌ API_ID ಸರಿಯಾದ ಸಂಖ್ಯೆಯಾಗಿಲ್ಲ. Render ನಲ್ಲಿ API_ID ಮೌಲ್ಯವನ್ನು ಪರಿಶೀಲಿಸಿ.")
+    exit()
+
+
+# --- ಆಜ್ಞೆಗಳು (Commands) ---
+
+# /start ಆಜ್ಞೆ
 @bot.on_message(filters.command("start") & filters.private)
-def start(client, message):
+def start_command(client, message):
     user_id = message.from_user.id
     user_name = message.from_user.first_name
     
-    # ಬಳಕೆದಾರರನ್ನು database ನಲ್ಲಿ ಸೇರಿಸುವುದು/ಅಪ್ಡೇಟ್ ಮಾಡುವುದು
-    users.update_one(
-        {"_id": user_id}, 
-        {"$set": {"name": user_name, "username": message.from_user.username}}, 
-        upsert=True
-    )
+    # ಡೇಟಾಬೇಸ್‌ನಲ್ಲಿ ಬಳಕೆದಾರರನ್ನು ಸೇರಿಸಿ
+    user_data = {
+        "user_id": user_id,
+        "username": message.from_user.username or "N/A",
+        "first_name": user_name
+    }
     
-    message.reply_text(
-        "🎬 **ನಮಸ್ಕಾರ!** ಇದು Movies Your Request ಬಾಟ್ 🎥\n\n"
-        "ಬಾಟ್ ಈಗ ಲೈವ್ ಆಗಿದೆ. /status ಕಳುಹಿಸಿ."
-    )
+    if users.find_one({"user_id": user_id}) is None:
+        users.insert_one(user_data)
+        
+    message.reply_text(f"ನಮಸ್ಕಾರ {user_name}! 👋\nನಿಮಗೆ ಬೇಕಾದ ಚಲನಚಿತ್ರದ ಹೆಸರನ್ನು ಇಲ್ಲಿ ಕಳುಹಿಸಿ.")
 
-# /status ಕಮಾಂಡ್ ಹ್ಯಾಂಡ್ಲರ್
+# /status ಆಜ್ಞೆ (ಬೋಟ್‌ನ ಸ್ಥಿತಿ ಮತ್ತು ಬಳಕೆದಾರರ ಸಂಖ್ಯೆ)
 @bot.on_message(filters.command("status") & filters.private)
-def status(client, message):
+def status_command(client, message):
     try:
         count = users.count_documents({})
-        message.reply_text(f"👥 **ಒಟ್ಟು ಬಳಕೆದಾರರು (Total users):** {count} ಜನ")
+        message.reply_text(f"ಬೋಟ್ ಚಾಲನೆಯಲ್ಲಿದೆ. ✅\nಒಟ್ಟು ನೋಂದಾಯಿತ ಬಳಕೆದಾರರು (Total users): **{count}**", parse_mode="markdown")
     except Exception as e:
-        message.reply_text(f"❌ status ಪಡೆಯುವಾಗ ದೋಷ: {e}")
+        message.reply_text(f"❌ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ: {e}")
 
-# ಬಾಟ್ ಅನ್ನು ಪ್ರಾರಂಭಿಸಿ
-print("🚀 ಬಾಟ್ ರನ್ ಆಗುತ್ತಿದೆ...")
+# --- ಬೋಟ್ ಅನ್ನು ರನ್ ಮಾಡಿ ---
+print("✅ ಬೋಟ್ ಪ್ರಾರಂಭವಾಗುತ್ತಿದೆ...")
 bot.run()
-      
