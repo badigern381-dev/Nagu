@@ -3,10 +3,14 @@ from pymongo import MongoClient
 import os
 
 # Heroku Config Vars ನಿಂದ ಅಗತ್ಯ ಮೌಲ್ಯಗಳನ್ನು ಪಡೆಯುವುದು
-API_ID = int(os.getenv("20754511"))
-API_HASH = os.getenv("024dfc58eb74589852411576d0e111d7")
-BOT_TOKEN = os.getenv("6262823979:AAEZ8EbdgKWgh4BkjrAre9DxAFFhmKaNczI")
-MONGO_URL = os.getenv("mongodb+srv://nagu:naguv@143@cluster0.vwdozju.mongodb.net/moviesyourrequest?retryWrites=true&w=majority&appName=Cluster0")
+API_ID = os.getenv("API_ID") 
+API_HASH = os.getenv("API_HASH")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+mongodb_url=mongodb+srv://badigern381_db_user:<ECFONSRI9YqMPIJZ>@cluster0.fdxreju.mongodb.net/?retryWrites=true&w=majority
+
+# --- MongoDB ಸಂಪರ್ಕ ---
+try:
+    mongo_client = MongoClieesyourrequest?retryWrites=true&w=majority&appName=Cluster0")
 
 # --- MongoDB ಸಂಪರ್ಕ ---
 try:
