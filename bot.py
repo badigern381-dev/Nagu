@@ -6,7 +6,7 @@ import os
 API_ID = os.getenv("API_ID") 
 API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-mongodb_url=mongodb+srv://badigern381_db_user:<ECFONSRI9YqMPIJZ>@cluster0.fdxreju.mongodb.net/?retryWrites=true&w=majority
+mongodb_url=("mongodb+srv://badigern381_db_user:<ECFONSRI9YqMPIJZ>@cluster0.fdxreju.mongodb.net/?retryWrites=true&w=majority")
 
 # --- MongoDB ಸಂಪರ್ಕ ---
 try:
