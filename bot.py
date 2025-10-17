@@ -1,86 +1,49 @@
-import os
-import logging
+
+```python
 from pyrogram import Client, filters
-from pymongo import MongoClient
+from pyrogram.types import InputFile
 
-# ಲಾಗಿಂಗ್ ಸೆಟ್ಟಿಂಗ್ಸ್
-logging.basicConfig(level=logging.INFO)
+# ==============================
+# ಇಲ್ಲಿ ನಿನ್ನ ಮಾಹಿತಿಗಳನ್ನು ಹಾಕು 👇 
+BOT_TOKEN = "6262823979:AAEZ8EbdgKWgh4BkjrAre9DxAFFhmKaNczI"
+API_ID = 20754511  # my.telegram.org ನಲ್ಲಿ ಸಿಗುತ್ತದೆ
+API_HASH = "024dfc58eb74589852411576d0e111d7"
+# ==============================
 
-# --- Environment Variables (Render ನಿಂದ ಪಡೆಯಲು) ---
-# API ID, API HASH, ಮತ್ತು BOT_TOKEN ಅನ್ನು Render ನ Environment Variables ನಲ್ಲಿ ನಮೂದಿಸಿರಬೇಕು.
-API_ID = os.getenv("API_ID") 
-API_HASH = os.getenv("API_HASH")
-BOT_TOKEN = os.getenv("BOT_TOKEN") 
+# ಬಾಟ್ ಕ್ರಿಯೇಟ್ ಮಾಡುವುದು
+app = Client("movies_request_bot", bot_token=BOT_TOKEN, api_id=API_ID, api_hash=API_HASH)
 
-# --- MongoDB Connection URL (ಪಾಸ್ವರ್ಡ್ ಸೇರಿಸಲಾಗಿದೆ) ---
-# ದಯವಿಟ್ಟು <ECFONSRI9YqMPIJZ> ಜಾಗದಲ್ಲಿ ನಿಮ್ಮ ನಿಜವಾದ ಪಾಸ್ವರ್ಡ್ ಹಾಕಿ.
-MONGO_URL = "mongodb+srv://badigern381_db_user:<ECFONSRI9YqMPIJZ>@cluster0.fdxreju.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+# ಬಾಟ್‌ಗಾಗಿ ಥಂಬರ್‌ನೆಲ್ ಇಮೇಜ್ ಮತ್ತು ಹೆಸರು
+THUMBNAIL_PATH = "path_to_your_thumbnail.jpg"  # ನಿಮ್ಮ ಥಂಬರ್‌ನೆಲ್ ಇಮೇಜ್ ಗಾಗಿ ಪಥದ ಐಡಿಯಲ್ಲಿ ಬದಲಾಯಿಸಿ
+NEW_BOT_NAME = "Your New Bot Name"  # ಹೊಸ ಹೆಸರು
 
-# --- MongoDB ಸಂಪರ್ಕ ಕೋಡ್ ---
-try:
-    if not MONGO_URL or "<YOUR_MONGO_PASSWORD_HERE>" in MONGO_URL:
-        # ಪಾಸ್ವರ್ಡ್ ಬದಲಾಯಿಸದಿದ್ದರೆ ಎಚ್ಚರಿಕೆ ನೀಡಿ
-        raise ValueError("MongoDB URL is incorrect or password is not replaced in the code.")
-        
-    mongo_client = MongoClient(MONGO_URL)
-    db = mongo_client["MoviesYourRequestBot"] 
-    users = db["users"] 
+# "/start" ಕಮಾಂಡ್‌ನ್ನು ನಿರ್ವಹಿಸಲು ಹ್ಯಾಂಡ್ಲರ್
+@app.on_message(filters.command("start"))
+def start(client, message):
+    welcome_message = "ನಮಸ್ಕಾರ! ನಾನು Movies Request Bot. ನೀವು ಮೈಲಿ ಕೃತಿಗಳನ್ನು ಕೇಳಬಹುದು."
+    client.send_message(chat_id=message.chat.id, text=welcome_message)
+
+# ಫೈಲ್ ಅನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಲು ಫಂಕ್ಷನ್
+@app.on_message(filters.command("upload"))
+def upload_file(client, message):
+    # ಫೈಲ್ ಮಾರ್ಗವನ್ನು ನಿರ್ಧರಿಸಿ
+    file_path = "path_to_your_file.mp4"  # ಇಂಗ್ಲಿಷ್ನಲ್ಲಿ ಹೊಸ ಫೈಲ್‌ನ್ನು ಮಾರ್ಗವನ್ನು ಬದಲಾಯಿಸಿ
     
-    print("✅ MongoDB ಗೆ ಯಶಸ್ವಿಯಾಗಿ ಸಂಪರ್ಕಗೊಂಡಿದೆ.") 
+    # ಫೈಲ್ ಅನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡುವುದು
+    client.send_document(chat_id=message.chat.id, document=file_path)
 
-except Exception as e:
-    print(f"❌ MongoDB ಸಂಪರ್ಕ ದೋಷ: {e}. ದಯವಿಟ್ಟು ಕೋಡ್‌ನಲ್ಲಿನ MONGO_URL ಪಾಸ್‌ವರ್ಡ್ ಸರಿಯಾಗಿದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ.")
-    # ಸಂಪರ್ಕ ವಿಫಲವಾದರೆ ಬೋಟ್ ಅನ್ನು ಸ್ಥಗಿತಗೊಳಿಸಿ
-    exit()
-
-# --- Pyrogram ಬೋಟ್ ಕ್ಲೈಂಟ್ ---
-# API ID ಮತ್ತು API HASH ಇಲ್ಲದಿದ್ದರೆ ಬೋಟ್ ಪ್ರಾರಂಭವಾಗುವುದಿಲ್ಲ.
-if not API_ID or not API_HASH or not BOT_TOKEN:
-    print("❌ API/BOT ವಿವರಗಳು ಕಾಣೆಯಾಗಿವೆ. Render ನ Environment Variables ಪರಿಶೀಲಿಸಿ.")
-    exit()
-
-try:
-    # API_ID ಅನ್ನು ಪೂರ್ಣಾಂಕವಾಗಿ (integer) ಪರಿವರ್ತಿಸುವುದು ಮುಖ್ಯ
-    bot = Client(
-        "MoviesYourRequestBot",  # ಸೆಷನ್ ಹೆಸರು
-        api_id=int(API_ID),      
-        api_hash=API_HASH, 
-        bot_token=BOT_TOKEN 
-    )
-except ValueError:
-    print("❌ API_ID ಸರಿಯಾದ ಸಂಖ್ಯೆಯಾಗಿಲ್ಲ. Render ನಲ್ಲಿ API_ID ಮೌಲ್ಯವನ್ನು ಪರಿಶೀಲಿಸಿ.")
-    exit()
-
-
-# --- ಆಜ್ಞೆಗಳು (Commands) ---
-
-# /start ಆಜ್ಞೆ
-@bot.on_message(filters.command("start") & filters.private)
-def start_command(client, message):
-    user_id = message.from_user.id
-    user_name = message.from_user.first_name
+# ಬಾಟ್ ಹೆಸರನ್ನು ಮತ್ತು ಥಂಬರ್‌ನೆಲ್ ಅನ್ನು ಬದಲಾಯಿಸಲು
+@app.on_message(filters.command("set_details"))
+def set_details(client, message):
+    # ಥಂಬರ್‌ನೆಲ್ ಓದಲು
+    if THUMBNAIL_PATH:
+        client.set_user_profile_photo(photo=InputFile(THUMBNAIL_PATH))
     
-    # ಡೇಟಾಬೇಸ್‌ನಲ್ಲಿ ಬಳಕೆದಾರರನ್ನು ಸೇರಿಸಿ
-    user_data = {
-        "user_id": user_id,
-        "username": message.from_user.username or "N/A",
-        "first_name": user_name
-    }
+    # ಹೊಸ ಬಾಟ್ ಹೆಸರನ್ನು ಹೊಂದಿಸಲು
+    client.set_my_name(NEW_BOT_NAME)
     
-    if users.find_one({"user_id": user_id}) is None:
-        users.insert_one(user_data)
-        
-    message.reply_text(f"ನಮಸ್ಕಾರ {user_name}! 👋\nನಿಮಗೆ ಬೇಕಾದ ಚಲನಚಿತ್ರದ ಹೆಸರನ್ನು ಇಲ್ಲಿ ಕಳುಹಿಸಿ.")
+    client.send_message(chat_id=message.chat.id, text="ಥಂಬರ್‌ನೆಲ್ ಮತ್ತು ಹೆಸರು ಯಶಸ್ವಿಯಾಗಿ ಬದಲಾಯಿಸಲಾಯಿತು.")
 
-# /status ಆಜ್ಞೆ (ಬೋಟ್‌ನ ಸ್ಥಿತಿ ಮತ್ತು ಬಳಕೆದಾರರ ಸಂಖ್ಯೆ)
-@bot.on_message(filters.command("status") & filters.private)
-def status_command(client, message):
-    try:
-        count = users.count_documents({})
-        message.reply_text(f"ಬೋಟ್ ಚಾಲನೆಯಲ್ಲಿದೆ. ✅\nಒಟ್ಟು ನೋಂದಾಯಿತ ಬಳಕೆದಾರರು (Total users): **{count}**", parse_mode="markdown")
-    except Exception as e:
-        message.reply_text(f"❌ ಸ್ಥಿತಿ ಪರಿಶೀಲನೆ ವಿಫಲವಾಗಿದೆ: {e}")
-
-# --- ಬೋಟ್ ಅನ್ನು ರನ್ ಮಾಡಿ ---
-print("✅ ಬೋಟ್ ಪ್ರಾರಂಭವಾಗುತ್ತಿದೆ...")
-bot.run()
+# ಬಾಟ್ ಅನ್ನು ಕೆಲಸ ಮಾಡಿಸಲು
+app.run()
+```
